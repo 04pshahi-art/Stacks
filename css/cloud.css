@@ -1,0 +1,11 @@
+.account-button,.account-mode{border:1px solid var(--line);border-radius:4px;background:transparent;color:var(--green);padding:8px 12px;font-size:11px;font-weight:650;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.account-button:hover,.account-mode:hover{background:#edf0e7}
+.publish-choice{display:flex!important;grid-template-columns:auto 1fr;align-items:flex-start;gap:10px!important;padding:12px;border:1px solid var(--line);border-radius:4px;background:#f8f7f1}
+.publish-choice input{margin:3px 0 0;accent-color:var(--green)}
+.publish-choice span{display:grid;gap:4px}.publish-choice strong{font-size:11px}.publish-choice small{font-size:10px;line-height:1.5;color:var(--muted);font-weight:400}
+.book-title a{color:inherit;text-decoration:underline;text-decoration-color:#b4c0ac;text-underline-offset:3px}.book-title a:hover{color:var(--green)}
+.migrate-button{margin-top:10px}
+.footer nav{display:flex;gap:15px}.footer nav a{color:inherit}
+@media(max-width:700px){.account-button{padding:7px 8px;max-width:90px}.footer{flex-wrap:wrap}.footer nav{width:100%}}
+.legal-page{max-width:760px;margin:48px auto;padding:0 24px 64px;line-height:1.7;color:var(--ink)}
+.legal-page h1{margin-top:42px}.legal-page h2{font:22px var(--serif);margin:28px 0 8px}.legal-page p{color:#555d52;font-size:14px}.legal-page p a{color:var(--green)}
