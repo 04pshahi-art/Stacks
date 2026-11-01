@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import section %}
+{% set page_title = "Your profile" %}
+
+{% macro taste_bars(title, rows) %}
+  <div>
+    <h3>{{ title }}</h3>
+    <ul class="taste-list">
+      {% for name, share in rows %}
+        <li>
+          <span>{{ name }}</span>
+          <progress max="1" value="{{ share }}" aria-label="{{ name }}"></progress>
+          <output>{{ (share * 100)|round|int }}%</output>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endmacro %}
+
+{% block content %}
+  <h1>{{ current_user.username }}</h1>
+  <dl class="stats section">
+    <div><dt>Books read</dt><dd>{{ finished_count }}</dd></div>
+    <div><dt>Uploads</dt><dd>{{ upload_count }}</dd></div>
+  </dl>
+
+  {% set note = "Your picks follow what you read." if taste.unlocked
+     else "Read " ~ taste.books_remaining ~ " more to unlock personal picks." %}
+  {% call section("Your taste", note) %}
+    {% if top_genres or top_moods %}
+      <div class="taste-grid">
+        {% if top_genres %}{{ taste_bars("Genres", top_genres) }}{% endif %}
+        {% if top_moods %}{{ taste_bars("Moods", top_moods) }}{% endif %}
+      </div>
+    {% else %}
+      <p class="muted">Finish a book, or pick favourites, and your taste shows up here.</p>
+    {% endif %}
+    <p><a class="btn btn--quiet btn--small" href="{{ url_for('account.preferences') }}">Edit favourites</a>
+       <a class="btn btn--quiet btn--small" href="{{ url_for('account.password') }}">Change password</a></p>
+  {% endcall %}
+{% endblock %}

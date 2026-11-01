@@ -1,0 +1,11 @@
+{#- Fields shared by the upload and edit forms. Expects `form` in the context. -#}
+{% from "partials/macros.html" import chips, field %}
+
+{{ field(form.title, autocomplete="off") }}
+{{ field(form.author) }}
+{{ field(form.description) }}
+{{ chips(form.visibility) }}
+{{ chips(form.status) }}
+{{ chips(form.genres, hint="Pick up to 3.") }}
+{{ chips(form.moods, hint="Pick up to 3.", mood=True) }}
+{{ field(form.cover, hint="JPEG, PNG or WebP, up to 2 MB. Optional: Folio paints a cover from the mood.") }}

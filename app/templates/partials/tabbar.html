@@ -1,0 +1,17 @@
+{% from "partials/icons.html" import icon %}
+{% if current_user.is_authenticated %}
+  {% set tabs = (
+    ("library.home", "Discover", "search"),
+    ("library.shelf", "Library", "library"),
+    ("books.upload", "Upload", "plus"),
+    ("notifications.page", "Alerts", "bell"),
+    ("account.profile", "Me", "user"),
+  ) %}
+  <nav class="tabbar" aria-label="Quick links">
+    {% for endpoint, label, symbol in tabs %}
+      <a href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>
+        {{ icon(symbol) }}{{ label }}
+      </a>
+    {% endfor %}
+  </nav>
+{% endif %}

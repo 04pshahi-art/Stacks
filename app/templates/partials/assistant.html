@@ -1,0 +1,19 @@
+{% from "partials/icons.html" import icon %}
+<div class="chat" data-chat data-chat-url="{{ url_for('assistant.chat') }}" data-status-url="{{ url_for('assistant.status') }}">
+  <section class="chat__panel" id="chat-panel" data-chat-panel hidden aria-label="Reading assistant">
+    <header class="chat__head">
+      <strong>Ask Folio</strong>
+      <span class="chat__status" data-chat-status data-online="false">Checking…</span>
+      <button class="icon-btn" type="button" data-chat-close aria-label="Close chat">{{ icon("close") }}</button>
+    </header>
+    <div class="chat__log" data-chat-log role="log" aria-live="polite"></div>
+    <form class="chat__form" data-chat-form>
+      <input type="text" name="message" maxlength="500" autocomplete="off" required
+             placeholder="Something cozy and mysterious…" aria-label="Your message">
+      <button class="btn btn--small" type="submit" aria-label="Send">{{ icon("send") }}</button>
+    </form>
+  </section>
+  <button class="btn chat__toggle" type="button" data-chat-toggle aria-expanded="false" aria-controls="chat-panel">
+    {{ icon("chat") }} Ask Folio
+  </button>
+</div>

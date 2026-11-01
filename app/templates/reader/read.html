@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% from "partials/icons.html" import icon %}
+{% set page_title = book.title %}
+
+{#- The reader owns the whole screen: no site nav, footer, tab bar or chat bubble. -#}
+{% block head %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/reader.css') }}">
+{% endblock %}
+{% block body_class %}reader-page{% endblock %}
+{% block nav %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block tabbar %}{% endblock %}
+{% block assistant %}{% endblock %}
+{% block flashes %}{% endblock %}
+{% block main_class %}reader-main{% endblock %}
+
+{% macro tool(name, label, symbol) %}
+  <button class="icon-btn" type="button" data-action="{{ name }}" aria-label="{{ label }}" title="{{ label }}">{{ icon(symbol) }}</button>
+{% endmacro %}
+
+{% block content %}
+  <section class="reader" data-reader data-mode="spread" data-paper="ivory"
+           data-api="{{ url_for('reader.toc', book_id=book.id).rsplit('/', 1)[0] }}"
+           data-total="{{ book.chapter_count }}"
+           data-start-chapter="{{ start_chapter }}"
+           data-start-ratio="{{ start_ratio }}"
+           data-speech-status="{{ url_for('speech.status') }}"
+           data-speech-synthesize="{{ url_for('speech.synthesize') }}">
+
+    <header class="reader__bar">
+      <a class="icon-btn" href="{{ url_for('books.detail', book_id=book.id) }}" aria-label="Back to book details">{{ icon("back") }}</a>
+      <div class="reader__title">
+        <strong>{{ book.title }}</strong>
+        <span class="muted" data-chapter-label></span>
+      </div>
+      <div class="reader__tools">
+        {{ tool("toc", "Chapters", "list") }}
+        {{ tool("listen", "Listen", "headphones") }}
+        {{ tool("smaller", "Smaller text", "minus") }}
+        {{ tool("larger", "Larger text", "text") }}
+        {{ tool("paper", "Change paper colour", "paper") }}
+        {{ tool("full", "Full screen", "expand") }}
+      </div>
+    </header>
+
+    <div class="reader__stage">
+      <button class="reader__edge reader__edge--prev" type="button" data-action="prev" aria-label="Previous page">{{ icon("left") }}</button>
+
+      <div class="book" data-book>
+        <div class="book__spread">
+          <article class="sheet" data-sheet="0" aria-live="polite"></article>
+          <article class="sheet" data-sheet="1"></article>
+        </div>
+        <div class="leaf" data-leaf hidden>
+          <div class="leaf__face leaf__face--front sheet" data-leaf-front></div>
+          <div class="leaf__face leaf__face--back sheet" data-leaf-back></div>
+          <div class="leaf__shade"></div>
+        </div>
+        <div class="book__measure sheet" data-measure aria-hidden="true"></div>
+        <p class="book__status" data-status role="status" hidden></p>
+      </div>
+
+      <button class="reader__edge reader__edge--next" type="button" data-action="next" aria-label="Next page">{{ icon("right") }}</button>
+    </div>
+
+    <footer class="reader__foot">
+      <progress max="1" value="0" data-progress aria-label="Progress through the book"></progress>
+      <span class="muted" data-page-label></span>
+    </footer>
+
+    <aside class="toc" data-toc hidden aria-label="Chapters">
+      <div class="toc__head"><strong>Chapters</strong>
+        <button class="icon-btn" type="button" data-action="toc" aria-label="Close chapters">{{ icon("close") }}</button>
+      </div>
+      <ol class="toc__list" data-toc-list></ol>
+    </aside>
+
+    <aside class="listen" data-listen data-state="idle" hidden aria-label="Listen">
+      <div class="listen__head"><strong>Listen</strong>
+        <button class="icon-btn" type="button" data-action="listen" aria-label="Close listen panel">{{ icon("close") }}</button>
+      </div>
+      <p class="muted listen__engine" data-listen-engine></p>
+      <div class="listen__buttons">
+        <button class="btn listen__play" type="button" data-action="speak">
+          <span class="listen__icon listen__icon--play">{{ icon("play") }}</span>
+          <span class="listen__icon listen__icon--pause">{{ icon("pause") }}</span>
+          <span class="listen__label"></span>
+        </button>
+        <button class="icon-btn" type="button" data-action="silence" aria-label="Stop reading" title="Stop">{{ icon("stop") }}</button>
+      </div>
+      <label class="listen__row">Speed
+        <select data-listen-rate></select>
+      </label>
+      <label class="listen__row" data-listen-voice-row hidden>Voice
+        <select data-listen-voice></select>
+      </label>
+      <p class="listen__notice" data-listen-notice role="status" hidden></p>
+    </aside>
+
+    <button class="reader__exit icon-btn" type="button" data-action="full" aria-label="Leave full screen" hidden>{{ icon("shrink") }}</button>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ url_for('static', filename='js/reader/index.js') }}"></script>
+{% endblock %}

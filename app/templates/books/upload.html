@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field %}
+{% set page_title = "Upload a book" %}
+
+{% block content %}
+  <form class="form-card form-card--wide" method="post" enctype="multipart/form-data" novalidate
+        data-tag-form data-suggest-url="{{ url_for('books.suggest') }}">
+    <h1>Upload a book</h1>
+    <p class="muted">Upload a file, or leave it empty and write chapter by chapter.</p>
+    {{ form.hidden_tag() }}
+    {{ field(form.file, hint=".txt, .md, .epub, .pdf, or a .zip with a .md file and its images. Up to 20 MB.") }}
+    {% include "books/_fields.html" %}
+    <button class="btn btn--quiet" type="button" data-suggest>Suggest genres and moods</button>
+    <p class="field__hint" data-suggest-note role="status"></p>
+    <button class="btn" type="submit">Save book</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import book_card, empty_state, section %}
+{% set page_title = "My library" %}
+
+{% block content %}
+  <h1>My library</h1>
+
+  {% call section("Reading now") %}
+    {% if reading %}
+      <div class="book-grid">
+        {% for book, progress in reading %}
+          {{ book_card(book, fraction=progress.fraction(book.chapter_count)) }}
+        {% endfor %}
+      </div>
+    {% else %}
+      {{ empty_state("Nothing in progress", "Open any book and it will wait for you here.", url_for("library.home"), "Find a book") }}
+    {% endif %}
+  {% endcall %}
+
+  {% if finished %}
+    {% call section("Finished") %}
+      <div class="book-grid">{% for book, _ in finished %}{{ book_card(book) }}{% endfor %}</div>
+    {% endcall %}
+  {% endif %}
+
+  {% call section("My uploads", "Private books are visible only to you.") %}
+    {% if uploads %}
+      <div class="book-grid">{% for book in uploads %}{{ book_card(book) }}{% endfor %}</div>
+    {% else %}
+      {{ empty_state("No uploads yet", "Add a .txt, .md, .epub, .pdf or .zip, or write chapter by chapter.", url_for("books.upload"), "Upload a book") }}
+    {% endif %}
+  {% endcall %}
+{% endblock %}

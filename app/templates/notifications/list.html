@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import empty_state, local_time %}
+{% set page_title = "Alerts" %}
+
+{% block content %}
+  <h1>New chapters</h1>
+  {% if items %}
+    <ul class="notify-page">
+      {% for item in items %}
+        <li>
+          <a href="{{ link(item) }}">
+            <span>{{ item.message }}</span>
+            <span class="muted">{{ local_time(item.created_at) }}</span>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    {{ empty_state("All quiet", "When an author you follow publishes a chapter, it shows up here.") }}
+  {% endif %}
+{% endblock %}

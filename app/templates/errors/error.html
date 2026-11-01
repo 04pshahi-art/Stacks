@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import empty_state %}
+{% set page_title = title %}
+
+{% block content %}
+  <p class="muted">Error {{ status }}</p>
+  {{ empty_state(title, hint, url_for("library.home"), "Back to Discover") }}
+{% endblock %}

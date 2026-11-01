@@ -1,0 +1,138 @@
+{#- Shared building blocks. Import what you need:
+    {% from "partials/macros.html" import cover, book_card, section %} -#}
+
+{% macro csrf() -%}
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%- endmacro %}
+
+{#- A button that POSTs. Extra keyword arguments become hidden fields. -#}
+{% macro post_button(action, label, css="btn btn--quiet btn--small", confirm=None) %}
+  <form class="inline-form" method="post" action="{{ action }}"
+        {%- if confirm %} data-confirm="{{ confirm }}"{% endif %}>
+    {{ csrf() }}
+    {% for name, value in kwargs.items() %}
+      <input type="hidden" name="{{ name }}" value="{{ value }}">
+    {% endfor %}
+    <button class="{{ css }}" type="submit">{{ label }}</button>
+  </form>
+{% endmacro %}
+
+{#- Titled block of the page. Put the content inside {% call section("Title") %} -#}
+{% macro section(title, note=None) %}
+  <section class="section">
+    <div class="section__head">
+      <h2>{{ title }}</h2>
+      {% if note %}<p>{{ note }}</p>{% endif %}
+    </div>
+    {{ caller() }}
+  </section>
+{% endmacro %}
+
+{# ---------- Books ---------- #}
+
+{% macro cover(book, large=False) %}
+  <div class="cover mood-{{ book.mood_slug }}{% if large %} cover--large{% endif %}">
+    {% if book.cover_filename %}
+      <img src="{{ url_for('books.cover', book_id=book.id) }}" alt="Cover of {{ book.title }}" loading="lazy">
+    {% else %}
+      <span class="cover__title">{{ book.title }}</span>
+      <span class="cover__author">{{ book.author }}</span>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro book_card(book, reason=None, fraction=None) %}
+  <a class="book-card" href="{{ url_for('books.detail', book_id=book.id) }}">
+    {{ cover(book) }}
+    <span class="book-card__title">{{ book.title }}</span>
+    <span class="book-card__meta">{{ book.author }}</span>
+    {% if reason %}<span class="book-card__reason">{{ reason }}</span>{% endif %}
+    {% if fraction is not none %}
+      <progress max="1" value="{{ fraction }}" aria-label="Reading progress"></progress>
+    {% endif %}
+    {% if book.visibility == "private" %}
+      <span class="book-card__status">Private</span>
+    {% elif book.status == "ongoing" %}
+      <span class="book-card__status">Ongoing</span>
+    {% endif %}
+  </a>
+{% endmacro %}
+
+{% macro empty_state(title, text, href=None, action=None) %}
+  <div class="empty">
+    <h3>{{ title }}</h3>
+    <p>{{ text }}</p>
+    {% if href %}<a class="btn" href="{{ href }}">{{ action }}</a>{% endif %}
+  </div>
+{% endmacro %}
+
+{# ---------- Forms ---------- #}
+
+{% macro errors(field) %}
+  {% if field.errors %}
+    <ul class="field__error" role="alert">
+      {% for message in field.errors %}<li>{{ message }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+{% endmacro %}
+
+{% macro field(f, hint=None) %}
+  <div class="field">
+    {{ f.label }}
+    {{ f(**kwargs) }}
+    {% if hint %}<span class="field__hint">{{ hint }}</span>{% endif %}
+    {{ errors(f) }}
+  </div>
+{% endmacro %}
+
+{#- Checkbox or radio group drawn as chips. Moods get their colour dot. -#}
+{% macro chips(f, hint=None, mood=False) %}
+  <fieldset class="field">
+    <legend>{{ f.label.text }}</legend>
+    <div class="chip-group">
+      {% for option in f %}
+        <label class="chip{% if mood %} mood-{{ option.label.text|lower }}{% else %} chip--genre{% endif %}">
+          {{ option() }}{{ option.label.text }}
+        </label>
+      {% endfor %}
+    </div>
+    {% if hint %}<span class="field__hint">{{ hint }}</span>{% endif %}
+    {{ errors(f) }}
+  </fieldset>
+{% endmacro %}
+
+{# A <select>. `options` is a list of values, or a dict of value -> label. #}
+{% macro select(name, label, options, current="", any_label=None) %}
+  <label>{{ label }}
+    <select name="{{ name }}">
+      {% if any_label %}<option value="">{{ any_label }}</option>{% endif %}
+      {% for value in options %}
+        <option value="{{ value }}"{% if value == current %} selected{% endif %}>
+          {{ options[value] if options is mapping else value }}
+        </option>
+      {% endfor %}
+    </select>
+  </label>
+{% endmacro %}
+
+{# ---------- Paging ---------- #}
+
+{% macro pager(results, endpoint) %}
+  {% if results.pages > 1 %}
+    {% set params = dict(kwargs.items()|rejectattr(1, "equalto", "")|list) %}
+    <nav class="pager" aria-label="Pages">
+      {% if results.has_prev %}
+        <a class="btn btn--quiet btn--small" href="{{ url_for(endpoint, page=results.prev_num, **params) }}" rel="prev">Previous</a>
+      {% endif %}
+      <span class="muted">Page {{ results.page }} of {{ results.pages }}</span>
+      {% if results.has_next %}
+        <a class="btn btn--quiet btn--small" href="{{ url_for(endpoint, page=results.next_num, **params) }}" rel="next">Next</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endmacro %}
+
+{#- A <time> that the browser rewrites in the visitor's own timezone. -#}
+{% macro local_time(moment) -%}
+  <time datetime="{{ moment.isoformat() }}Z" data-local-time>{{ moment.strftime("%d %b %Y") }}</time>
+{%- endmacro %}

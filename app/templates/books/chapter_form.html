@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import csrf, field %}
+{% set page_title = "New chapter" %}
+
+{% block content %}
+  <form class="form-card form-card--wide" method="post" novalidate>
+    <h1>New chapter</h1>
+    <p class="muted">
+      {{ book.title }} has {{ book.chapter_count }} chapter{{ "" if book.chapter_count == 1 else "s" }}.
+      {% if book.is_public %}Readers following it will be notified when you publish.{% endif %}
+    </p>
+    {{ form.hidden_tag() }}
+    {{ field(form.title) }}
+    {{ field(form.body, rows=16, hint="Plain text. Leave a blank line between paragraphs.") }}
+    <button class="btn" type="submit">Publish chapter</button>
+    <a class="btn btn--quiet" href="{{ url_for('books.detail', book_id=book.id) }}">Cancel</a>
+  </form>
+
+  <form class="form-card form-card--wide section" method="post" enctype="multipart/form-data"
+        action="{{ url_for('books.import_chapters', book_id=book.id) }}" novalidate>
+    <h2>Add many chapters at once</h2>
+    <p class="muted">
+      Upload a .txt, .md, .epub, .pdf or .zip. Folio splits it at headings such as “Chapter 1”
+      and adds every chapter after the ones you already have. Followers get one alert.
+    </p>
+    {{ csrf() }}
+    {{ field(file_form.file, hint="Up to 20 MB.") }}
+    <button class="btn" type="submit">Publish all chapters</button>
+  </form>
+{% endblock %}

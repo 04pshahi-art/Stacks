@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field %}
+{% set page_title = "Create account" %}
+
+{% block content %}
+  <div class="form-page">
+    <div class="form-page__aside">
+      <h1>Find your next favourite book.</h1>
+      <p>Read, upload your own, and keep it private or share it.</p>
+    </div>
+    <form class="form-card" method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ field(form.username, autocomplete="username", autofocus=True) }}
+      {{ field(form.email, autocomplete="email") }}
+      {{ field(form.password, autocomplete="new-password", hint="At least 10 characters.") }}
+      {{ field(form.confirm, autocomplete="new-password") }}
+      <button class="btn" type="submit">Create account</button>
+      <p class="muted">Already have one? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+    </form>
+  </div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import cover, post_button %}
+{% from "partials/icons.html" import icon %}
+{% set page_title = book.title %}
+
+{% block content %}
+  <article class="book-detail">
+    {{ cover(book, large=True) }}
+
+    <div class="book-detail__info">
+      <div>
+        <h1>{{ book.title }}</h1>
+        <p class="muted">by {{ book.author }}{% if book.is_public and not is_owner %} · shared by {{ book.owner.username }}{% endif %}</p>
+      </div>
+
+      <div class="chip-group">
+        {% for genre in book.genres %}
+          <a class="chip chip--genre" href="{{ url_for('library.home', genre=genre) }}">{{ genre }}</a>
+        {% endfor %}
+        {% for mood in book.moods %}
+          <a class="chip mood-{{ mood|lower }}" href="{{ url_for('library.home', mood=mood) }}">{{ mood }}</a>
+        {% endfor %}
+      </div>
+
+      <p class="tags">
+        <span>{% if book.is_public %}Public{% else %}{{ icon("lock") }} Private{% endif %}</span>
+        <span>{{ "Ongoing" if book.status == "ongoing" else "Complete" }}</span>
+        <span>{{ book.chapter_count }} chapter{{ "" if book.chapter_count == 1 else "s" }}</span>
+        <span>{{ "{:,}".format(book.word_count) }} words</span>
+      </p>
+
+      {% if book.description %}<p class="book-detail__description">{{ book.description }}</p>{% endif %}
+
+      {% if progress %}
+        <progress max="1" value="{{ progress.fraction(book.chapter_count) }}" aria-label="Your progress"></progress>
+      {% endif %}
+
+      <div class="book-detail__actions">
+        {% if book.chapter_count %}
+          {% if current_user.is_authenticated %}
+            <a class="btn" href="{{ url_for('reader.read', book_id=book.id) }}">{{ "Continue reading" if progress else "Start reading" }}</a>
+          {% else %}
+            <a class="btn" href="{{ url_for('auth.login', next=request.path) }}">Sign in to read</a>
+          {% endif %}
+        {% endif %}
+
+        {% if current_user.is_authenticated and not is_owner and book.status == "ongoing" %}
+          {% if following %}
+            {{ post_button(url_for("books.follow", book_id=book.id), "Stop chapter alerts", action="unfollow") }}
+          {% else %}
+            {{ post_button(url_for("books.follow", book_id=book.id), "Alert me to new chapters", action="follow") }}
+          {% endif %}
+        {% endif %}
+
+        {% if is_owner %}
+          <a class="btn btn--quiet" href="{{ url_for('books.new_chapter', book_id=book.id) }}">Add chapter</a>
+          <a class="btn btn--quiet" href="{{ url_for('books.edit', book_id=book.id) }}">Edit</a>
+          {{ post_button(url_for("books.delete", book_id=book.id), "Delete", css="btn btn--danger", confirm="Delete this book and all its chapters?") }}
+        {% endif %}
+      </div>
+
+      {% if book.chapters %}
+        <ol class="chapter-list">
+          {% for chapter in book.chapters %}
+            <li>
+              {% if current_user.is_authenticated %}
+                <a href="{{ url_for('reader.read', book_id=book.id, chapter=chapter.number) }}">
+                  <span>{{ chapter.number }}. {{ chapter.title }}</span>
+                  <span class="muted">{{ chapter.word_count }} words</span>
+                </a>
+              {% else %}
+                <span class="chapter-list__static">{{ chapter.number }}. {{ chapter.title }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+      {% endif %}
+    </div>
+  </article>
+{% endblock %}

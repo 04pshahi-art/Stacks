@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import book_card, empty_state, pager, section, select %}
+{% from "partials/icons.html" import icon %}
+{% set page_title = "Discover" %}
+
+{% block content %}
+  {% if results is none %}
+    <section class="hero">
+      <div>
+        <h1>Every story has a shelf.</h1>
+        <p class="hero__lead">Read in a book that turns its pages. Upload your own. Keep it private or share it with everyone.</p>
+        {% if not current_user.is_authenticated %}
+          <div class="hero__actions">
+            <a class="btn" href="{{ url_for('auth.register') }}">Start reading</a>
+            <a class="btn btn--quiet" href="{{ url_for('auth.login') }}">Sign in</a>
+          </div>
+        {% endif %}
+      </div>
+      {% if latest %}
+        <div>
+          <div class="spines" aria-label="Newest books">
+            {% for book in latest[:9] %}
+              <a class="spine spine--v{{ book.cover_variant }} mood-{{ book.mood_slug }}"
+                 href="{{ url_for('books.detail', book_id=book.id) }}">{{ book.title }}</a>
+            {% endfor %}
+          </div>
+          <div class="spines__board"></div>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  <form class="finder" method="get" action="{{ url_for('library.home') }}" role="search">
+    <label>Search
+      <input type="search" name="q" value="{{ filters.q }}" maxlength="100" placeholder="Title, author or idea">
+    </label>
+    {{ select("genre", "Genre", genres, filters.genre, "Any genre") }}
+    {{ select("mood", "Mood", moods, filters.mood, "Any mood") }}
+    {{ select("sort", "Sort by", sort_options, filters.sort) }}
+    <button class="btn" type="submit">{{ icon("search") }} Search</button>
+  </form>
+
+  {% if results is none %}
+    <div class="mood-links" aria-label="Browse by mood">
+      {% for mood in moods %}
+        <a class="chip mood-{{ mood|lower }}" href="{{ url_for('library.home', mood=mood) }}">{{ mood }}</a>
+      {% endfor %}
+    </div>
+
+    {% if current_user.is_authenticated %}
+      {% if reading %}
+        {% call section("Continue reading") %}
+          <div class="book-row">
+            {% for book, progress in reading %}
+              {{ book_card(book, fraction=progress.fraction(book.chapter_count)) }}
+            {% endfor %}
+          </div>
+        {% endcall %}
+      {% endif %}
+
+      {% if picks %}
+        {% set note = "Picked from the genres and moods you enjoy." if taste.unlocked
+           else "Read " ~ taste.books_remaining ~ " more to make these truly yours." %}
+        {% call section("Picked for you", note) %}
+          <div class="book-row">
+            {% for pick in picks %}{{ book_card(pick.book, reason=pick.reason_text) }}{% endfor %}
+          </div>
+        {% endcall %}
+      {% endif %}
+    {% endif %}
+
+    {% call section("Newest") %}
+      {% if latest %}
+        <div class="book-row">{% for book in latest %}{{ book_card(book) }}{% endfor %}</div>
+      {% else %}
+        {{ empty_state("The shelves are empty", "Be the first to share a book.", url_for("books.upload"), "Upload a book") }}
+      {% endif %}
+    {% endcall %}
+
+    {% if popular %}
+      {% call section("Most read") %}
+        <div class="book-row">{% for book in popular %}{{ book_card(book) }}{% endfor %}</div>
+      {% endcall %}
+    {% endif %}
+  {% else %}
+    {% call section(results.total ~ (" book" if results.total == 1 else " books") ~ " found") %}
+      {% if results.items %}
+        <div class="book-grid">{% for book in results.items %}{{ book_card(book) }}{% endfor %}</div>
+        {{ pager(results, "library.home", **filters) }}
+      {% else %}
+        {{ empty_state("No matches", "Try fewer words, or a different genre or mood.", url_for("library.home"), "Clear search") }}
+      {% endif %}
+    {% endcall %}
+  {% endif %}
+{% endblock %}

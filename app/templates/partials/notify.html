@@ -1,0 +1,14 @@
+{% from "partials/icons.html" import icon %}
+<div class="notify" data-notify data-summary-url="{{ url_for('notifications.summary') }}" data-read-url="{{ url_for('notifications.mark_read') }}">
+  <button class="icon-btn" type="button" data-notify-toggle aria-expanded="false" aria-controls="notify-panel" aria-label="New chapter alerts">
+    {{ icon("bell") }}
+    <span class="badge" data-notify-badge{% if not unread_count %} hidden{% endif %}>{{ unread_count }}</span>
+  </button>
+  <div class="notify__panel" id="notify-panel" data-notify-panel hidden>
+    <div class="notify__head">
+      <span>New chapters</span>
+      <a href="{{ url_for('notifications.page') }}">See all</a>
+    </div>
+    <ul class="notify__list" data-notify-list></ul>
+  </div>
+</div>

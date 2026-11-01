@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import chips %}
+{% set page_title = "Your taste" %}
+
+{% block content %}
+  <form class="form-card form-card--wide" method="post" novalidate>
+    <h1>{{ "Welcome. What do you love to read?" if welcome else "Your favourites" }}</h1>
+    <p class="muted">Folio uses these for picks now, then learns from the books you read.</p>
+    {{ form.hidden_tag() }}
+    {{ chips(form.genres, hint="Pick up to 3.") }}
+    {{ chips(form.moods, hint="Pick up to 3.", mood=True) }}
+    <button class="btn" type="submit">Save</button>
+    {% if welcome %}<a class="btn btn--quiet" href="{{ url_for('library.home') }}">Skip for now</a>{% endif %}
+  </form>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "partials/macros.html" import field %}
+{% set page_title = "Edit " ~ book.title %}
+
+{% block content %}
+  <form class="form-card form-card--wide" method="post" enctype="multipart/form-data" novalidate>
+    <h1>Edit book</h1>
+    {{ form.hidden_tag() }}
+    {% include "books/_fields.html" %}
+    {% if book.cover_filename %}{{ field(form.remove_cover) }}{% endif %}
+    <button class="btn" type="submit">Save changes</button>
+    <a class="btn btn--quiet" href="{{ url_for('books.detail', book_id=book.id) }}">Cancel</a>
+  </form>
+{% endblock %}
